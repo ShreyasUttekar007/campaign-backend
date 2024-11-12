@@ -6,18 +6,28 @@ const formData = require("../models/FormData");
 router.post("/vote", async (req, res) => {
   try {
     const { option } = req.body;
+    const userIp = req.ip;
 
     if (!option) {
       return res.status(400).json({ error: "Option is required" });
     }
 
-    const newVote = new formData({ option });
+    // Check if the IP address has already voted
+    const existingVote = await formData.findOne({ ip: userIp });
+    if (existingVote) {
+      return res.status(403).json({ error: "You have already voted" });
+    }
+
+    // Create a new vote entry with the user's IP address
+    const newVote = new formData({ option, ip: userIp });
     await newVote.save();
+
     res.status(201).json({ message: "Vote recorded successfully", data: newVote });
   } catch (error) {
     res.status(500).json({ error: "Error saving vote", details: error.message });
   }
 });
+
 
 router.get("/results", async (req, res) => {
   try {
@@ -26,11 +36,11 @@ router.get("/results", async (req, res) => {
 
     // Initial vote counts for specific options
     const initialCounts = {
-      "श्री.शंभूराज शिवाजीराव देसाई (शिंदे गट)": 2817,
-      "श्री.सत्यजितसिंह विक्रमसिंह पाटणकर": 894,
-      "श्री.भानुप्रताप कदम (ठाकरे गट)": 436,
-      "NOTA": 58,
-      "Other": 0,
+      "श्री.शंभूराज शिवाजीराव देसाई (शिंदे गट)": 3817,
+      "श्री.सत्यजितसिंह विक्रमसिंह पाटणकर": 1094,
+      "श्री.भानुप्रताप कदम (ठाकरे गट)": 636,
+      "NOTA": 108,
+      "Other": 11,
     };
 
     // Calculate the current counts based on the database entries

@@ -1,17 +1,15 @@
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
-  
-const formSchema = new Schema(
-  {
-    option: {
-      type: String,
-      required: [true, "Please select an Option"],
-      trim: true,
-    },
+const mongoose = require('mongoose');
+
+const formDataSchema = new mongoose.Schema({
+  option: {
+    type: String,
+    required: true,
   },
-  { timestamps: true }
-);
+  ip: {
+    type: String,
+    required: true,
+    unique: true, // Ensures one vote per IP
+  },
+});
 
-const formData = mongoose.model("formData", formSchema);
-
-module.exports = formData;
+module.exports = mongoose.model('formData', formDataSchema);
