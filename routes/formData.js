@@ -3,19 +3,16 @@ const router = express.Router();
 const formData = require("../models/FormData");
 
 // POST API to add a new vote
-// POST API to add a new vote
 router.post("/vote", async (req, res) => {
   try {
     const { option } = req.body;
-
-    // Get the real client IP address, considering a proxy
-    const userIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     if (!option) {
       return res.status(400).json({ error: "Option is required" });
     }
 
-    // Check if the IP address has already voted
+    // Check if the IP address has already voted (only the first IP address)
     const existingVote = await formData.findOne({ ip: userIp });
     if (existingVote) {
       return res.status(403).json({ error: "You have already voted" });
@@ -25,20 +22,17 @@ router.post("/vote", async (req, res) => {
     const newVote = new formData({ option, ip: userIp });
     await newVote.save();
 
-    res
-      .status(201)
-      .json({ message: "Vote recorded successfully", data: newVote });
+    res.status(201).json({ message: "Vote recorded successfully", data: newVote });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error saving vote", details: error.message });
+    res.status(500).json({ error: "Error saving vote", details: error.message });
   }
 });
+
 
 // GET API to check if the user has already voted
 router.get("/check-vote", async (req, res) => {
   try {
-    const userIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+    const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const existingVote = await formData.findOne({ ip: userIp });
 
     if (existingVote) {
@@ -47,11 +41,10 @@ router.get("/check-vote", async (req, res) => {
 
     res.status(200).json({ hasVoted: false });
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error checking vote status", details: error.message });
+    res.status(500).json({ error: "Error checking vote status", details: error.message });
   }
 });
+
 
 router.get("/results", async (req, res) => {
   try {
