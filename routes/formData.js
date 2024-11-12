@@ -3,10 +3,13 @@ const router = express.Router();
 const formData = require("../models/FormData"); 
 
 // POST API to add a new vote
+// POST API to add a new vote
 router.post("/vote", async (req, res) => {
   try {
     const { option } = req.body;
-    const userIp = req.ip;
+
+    // Get the real client IP address, considering a proxy
+    const userIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
 
     if (!option) {
       return res.status(400).json({ error: "Option is required" });
@@ -27,6 +30,8 @@ router.post("/vote", async (req, res) => {
     res.status(500).json({ error: "Error saving vote", details: error.message });
   }
 });
+
+
 
 
 router.get("/results", async (req, res) => {
